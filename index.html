@@ -93,18 +93,25 @@
   <body>
     <div class="card">
       <h1>Select your language</h1>
-      <p>Please choose the language you’d like to use in this conversation.</p>
+      <p>Please choose the language you'd like to use in this conversation.</p>
 
       <label for="language">Language</label>
       <select id="language">
         <option value="">Select a language…</option>
-        <option value="en">English</option>
-        <option value="es">Español (Spanish)</option>
-        <option value="fr">Français (French)</option>
-        <option value="de">Deutsch (German)</option>
-        <option value="pt">Português (Portuguese)</option>
+        <option value="zh">中文 (Mandarin)</option>
+        <option value="ja">日本語 (Japanese)</option>
+        <option value="ru">Русский (Russian)</option>
+        <option value="pl">Polski (Polish)</option>
         <option value="it">Italiano (Italian)</option>
-        <!-- Add / change options as needed -->
+        <option value="ko">한국어 (Korean)</option>
+        <option value="pt">Português (Portuguese)</option>
+        <option value="sv">Svenska (Swedish)</option>
+        <option value="fi">Suomi (Finnish)</option>
+        <option value="de">Deutsch (German)</option>
+        <option value="fr">Français (French)</option>
+        <option value="nl">Nederlands (Dutch)</option>
+        <option value="cs">Čeština (Czech)</option>
+        <option value="es">Español (Spanish)</option>
       </select>
 
       <button id="confirm">Continue</button>
@@ -149,7 +156,6 @@
           }
 
           // This is the content your pathway will see as the "user message"
-          // You can branch in the pathway on `LANGUAGE_SELECTED:<code>`
           const payload = `LANGUAGE_SELECTED:${value}`;
 
           try {
