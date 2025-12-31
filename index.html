@@ -50,6 +50,30 @@
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
+
+      .status {
+        margin-top: 12px;
+        font-size: 13px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        display: none;
+      }
+
+      .status.show {
+        display: block;
+      }
+
+      .status.error {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+      }
+
+      .status.success {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+      }
     </style>
   </head>
   <body>
@@ -73,6 +97,8 @@
         <option value="cs">Čeština (Czech)</option>
         <option value="es">Español (Spanish)</option>
       </select>
+
+      <div id="status" class="status"></div>
     </div>
 
     <script>
@@ -81,6 +107,7 @@
         const initialLang = params.get("language") || params.get("lang");
 
         const select = document.getElementById("language");
+        const status = document.getElementById("status");
 
         // Preselect language from query params if present
         if (initialLang) {
@@ -92,19 +119,33 @@
           }
         }
 
-        // Send message immediately when language is selected
+        function setStatus(message, type) {
+          status.textContent = message || "";
+          status.classList.remove("error", "success", "show");
+          if (type) {
+            status.classList.add(type, "show");
+          }
+        }
+
+        // Auto-submit when language is selected
         select.addEventListener("change", function () {
           const value = this.value;
+          const label = this.options[this.selectedIndex] && this.options[this.selectedIndex].text;
 
-          if (!value) return;
+          if (!value) {
+            return;
+          }
 
           // Send message to Bland widget
           const payload = `LANGUAGE_SELECTED:${value}`;
 
           try {
             parent.window.postMessage(`widget-message:${payload}`, "*");
+            setStatus(`✓ Language set to ${label}`, "success");
+            select.disabled = true;
           } catch (err) {
             console.error(err);
+            setStatus("Unable to connect to chat widget.", "error");
           }
         });
       })();
