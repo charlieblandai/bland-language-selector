@@ -100,6 +100,25 @@
         const select = document.getElementById("language");
         const status = document.getElementById("status");
 
+        // Language name mapping
+        const languageNames = {
+          'en': 'English',
+          'zh': 'Mandarin',
+          'ja': 'Japanese',
+          'ru': 'Russian',
+          'pl': 'Polish',
+          'it': 'Italian',
+          'ko': 'Korean',
+          'pt': 'Portuguese',
+          'sv': 'Swedish',
+          'fi': 'Finnish',
+          'de': 'German',
+          'fr': 'French',
+          'nl': 'Dutch',
+          'cs': 'Czech',
+          'es': 'Spanish'
+        };
+
         // Preselect language from query params if present
         if (initialLang) {
           const option = Array.from(select.options).find(
@@ -127,8 +146,9 @@
             return;
           }
 
-          // Send message to Bland widget
-          const payload = `LANGUAGE_SELECTED:${value}`;
+          // Send natural language message to Bland widget
+          const languageName = languageNames[value] || value;
+          const payload = `I want to continue in ${languageName}`;
 
           try {
             parent.window.postMessage(`widget-message:${payload}`, "*");
