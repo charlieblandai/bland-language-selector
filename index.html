@@ -73,20 +73,21 @@
       <select id="language">
         <option value="">Select a language…</option>
         <option value="en">English</option>
-        <option value="zh">中文 (Mandarin)</option>
         <option value="ja">日本語 (Japanese)</option>
-        <option value="ru">Русский (Russian)</option>
-        <option value="pl">Polski (Polish)</option>
+        <option value="zh">中文 (Mandarin)</option>
+        <option value="es">Español (Spanish)</option>
+        <option value="pt">Português (Portuguese)</option>
         <option value="it">Italiano (Italian)</option>
         <option value="ko">한국어 (Korean)</option>
-        <option value="pt">Português (Portuguese)</option>
-        <option value="sv">Svenska (Swedish)</option>
-        <option value="fi">Suomi (Finnish)</option>
-        <option value="de">Deutsch (German)</option>
         <option value="fr">Français (French)</option>
+        <option value="el">Ελληνικά (Greek)</option>
+        <option value="de">Deutsch (German)</option>
+        <option value="fi">Suomi (Finnish)</option>
         <option value="nl">Nederlands (Dutch)</option>
-        <option value="cs">Čeština (Czech)</option>
-        <option value="es">Español (Spanish)</option>
+        <option value="ru">Русский (Russian)</option>
+        <option value="ro">Română (Romanian)</option>
+        <option value="tr">Türkçe (Turkish)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
       </select>
 
       <div id="status" class="status"></div>
@@ -103,20 +104,21 @@
         // Language name mapping
         const languageNames = {
           'en': 'English',
-          'zh': 'Mandarin',
           'ja': 'Japanese',
-          'ru': 'Russian',
-          'pl': 'Polish',
+          'zh': 'Mandarin',
+          'es': 'Spanish',
+          'pt': 'Portuguese',
           'it': 'Italian',
           'ko': 'Korean',
-          'pt': 'Portuguese',
-          'sv': 'Swedish',
-          'fi': 'Finnish',
-          'de': 'German',
           'fr': 'French',
+          'el': 'Greek',
+          'de': 'German',
+          'fi': 'Finnish',
           'nl': 'Dutch',
-          'cs': 'Czech',
-          'es': 'Spanish'
+          'ru': 'Russian',
+          'ro': 'Romanian',
+          'tr': 'Turkish',
+          'hi': 'Hindi'
         };
 
         // Preselect language from query params if present
