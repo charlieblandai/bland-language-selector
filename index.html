@@ -66,6 +66,19 @@
         color: #16a34a;
         border: 1px solid #bbf7d0;
       }
+
+      .debug {
+        margin-top: 12px;
+        font-size: 11px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
     </style>
   </head>
   <body>
@@ -91,6 +104,7 @@
       </select>
 
       <div id="status" class="status"></div>
+      <div id="debug" class="debug"></div>
     </div>
 
     <script>
@@ -100,6 +114,7 @@
 
         const select = document.getElementById("language");
         const status = document.getElementById("status");
+        const debug = document.getElementById("debug");
 
         // Language name mapping
         const languageNames = {
@@ -120,6 +135,11 @@
           'tr': 'Turkish',
           'hi': 'Hindi'
         };
+
+        // Debug info
+        debug.textContent = `In iframe: ${window.self !== window.top}
+Parent exists: ${!!window.parent}
+Location: ${window.location.href}`;
 
         // Preselect language from query params if present
         if (initialLang) {
@@ -153,13 +173,23 @@
           const payload = `I want to continue in ${languageName}`;
 
           try {
+            console.log('Sending postMessage:', payload);
             parent.window.postMessage(`widget-message:${payload}`, "*");
+            
+            debug.textContent += `\n\nMessage sent: ${payload}
+Target: parent.window
+Origin: *`;
+            
             setStatus(`✓ Language set to ${label}`, "success");
             select.disabled = true;
           } catch (err) {
+            console.error('postMessage error:', err);
+            debug.textContent += `\n\nERROR: ${err.message}`;
             setStatus("Unable to connect to chat widget.", "error");
           }
         });
+
+        console.log('Language selector loaded');
       })();
     </script>
   </body>
