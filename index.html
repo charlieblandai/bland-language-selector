@@ -1,167 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Language Selector</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: transparent;
-        padding: 16px;
-      }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-      .container {
-        max-width: 100%;
-      }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
 
-      select {
-        width: 100%;
-        padding: 12px 16px;
-        border-radius: 8px;
-        border: 1px solid #d1d5db;
-        font-size: 15px;
-        color: #111827;
-        background: white;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
+        h1 {
+            color: #003DA5;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-      select:hover {
-        border-color: #9ca3af;
-      }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
 
-      select:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      }
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
 
-      .status {
-        margin-top: 12px;
-        font-size: 13px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        display: none;
-      }
+        .language-button {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
 
-      .status.show {
-        display: block;
-      }
+        .language-button:hover {
+            border-color: #003DA5;
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 61, 165, 0.1);
+        }
 
-      .status.error {
-        background: #fef2f2;
-        color: #dc2626;
-        border: 1px solid #fecaca;
-      }
+        .language-button:active {
+            transform: translateY(0);
+        }
 
-      .status.success {
-        background: #f0fdf4;
-        color: #16a34a;
-        border: 1px solid #bbf7d0;
-      }
+        .flag-emoji {
+            font-size: 32px;
+            line-height: 1;
+        }
+
+        .language-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .native-name {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #003DA5;
+            font-weight: 500;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #003DA5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .language-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <select id="language">
-        <option value="">Select a language…</option>
-        <option value="en">English</option>
-        <option value="ja">日本語 (Japanese)</option>
-        <option value="zh">中文 (Mandarin)</option>
-        <option value="es">Español (Spanish)</option>
-        <option value="pt">Português (Portuguese)</option>
-        <option value="it">Italiano (Italian)</option>
-        <option value="ko">한국어 (Korean)</option>
-        <option value="fr">Français (French)</option>
-        <option value="el">Ελληνικά (Greek)</option>
-        <option value="de">Deutsch (German)</option>
-        <option value="fi">Suomi (Finnish)</option>
-        <option value="nl">Nederlands (Dutch)</option>
-        <option value="ru">Русский (Russian)</option>
-        <option value="ro">Română (Romanian)</option>
-        <option value="tr">Türkçe (Turkish)</option>
-        <option value="hi">हिन्दी (Hindi)</option>
-      </select>
+        <h1>Select Your Language</h1>
+        <p class="subtitle">Choose your preferred language to continue</p>
+        
+        <div class="language-grid" id="languageGrid">
+            <button class="language-button" onclick="selectLanguage('en', 'English')">
+                <span class="flag-emoji">🇺🇸</span>
+                <span class="language-name">English</span>
+            </button>
 
-      <div id="status" class="status"></div>
+            <button class="language-button" onclick="selectLanguage('es', 'Spanish')">
+                <span class="flag-emoji">🇪🇸</span>
+                <span class="language-name">Español</span>
+                <span class="native-name">Spanish</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('fr', 'French')">
+                <span class="flag-emoji">🇫🇷</span>
+                <span class="language-name">Français</span>
+                <span class="native-name">French</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('de', 'German')">
+                <span class="flag-emoji">🇩🇪</span>
+                <span class="language-name">Deutsch</span>
+                <span class="native-name">German</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('it', 'Italian')">
+                <span class="flag-emoji">🇮🇹</span>
+                <span class="language-name">Italiano</span>
+                <span class="native-name">Italian</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('pt', 'Portuguese')">
+                <span class="flag-emoji">🇧🇷</span>
+                <span class="language-name">Português</span>
+                <span class="native-name">Portuguese</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('pl', 'Polish')">
+                <span class="flag-emoji">🇵🇱</span>
+                <span class="language-name">Polski</span>
+                <span class="native-name">Polish</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('ru', 'Russian')">
+                <span class="flag-emoji">🇷🇺</span>
+                <span class="language-name">Русский</span>
+                <span class="native-name">Russian</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('zh', 'Chinese')">
+                <span class="flag-emoji">🇨🇳</span>
+                <span class="language-name">中文</span>
+                <span class="native-name">Chinese</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('ja', 'Japanese')">
+                <span class="flag-emoji">🇯🇵</span>
+                <span class="language-name">日本語</span>
+                <span class="native-name">Japanese</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('ko', 'Korean')">
+                <span class="flag-emoji">🇰🇷</span>
+                <span class="language-name">한국어</span>
+                <span class="native-name">Korean</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('ar', 'Arabic')">
+                <span class="flag-emoji">🇸🇦</span>
+                <span class="language-name">العربية</span>
+                <span class="native-name">Arabic</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('hi', 'Hindi')">
+                <span class="flag-emoji">🇮🇳</span>
+                <span class="language-name">हिन्दी</span>
+                <span class="native-name">Hindi</span>
+            </button>
+
+            <button class="language-button" onclick="selectLanguage('nl', 'Dutch')">
+                <span class="flag-emoji">🇳🇱</span>
+                <span class="language-name">Nederlands</span>
+                <span class="native-name">Dutch</span>
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading your conversation...</p>
+        </div>
     </div>
 
     <script>
-      (function () {
-        const params = new URLSearchParams(window.location.search);
-        const initialLang = params.get("language") || params.get("lang");
+        function selectLanguage(languageCode, languageName) {
+            // Show loading state
+            document.getElementById('languageGrid').style.display = 'none';
+            document.getElementById('loading').classList.add('active');
 
-        const select = document.getElementById("language");
-        const status = document.getElementById("status");
+            // Log for debugging
+            console.log('Language selected:', languageCode, languageName);
 
-        // Language name mapping
-        const languageNames = {
-          'en': 'English',
-          'ja': 'Japanese',
-          'zh': 'Mandarin',
-          'es': 'Spanish',
-          'pt': 'Portuguese',
-          'it': 'Italian',
-          'ko': 'Korean',
-          'fr': 'French',
-          'el': 'Greek',
-          'de': 'German',
-          'fi': 'Finnish',
-          'nl': 'Dutch',
-          'ru': 'Russian',
-          'ro': 'Romanian',
-          'tr': 'Turkish',
-          'hi': 'Hindi'
-        };
+            // Send the language code to the parent Bland widget
+            // CRITICAL: Must be prefixed with "widget-message:"
+            const message = `widget-message:${languageCode}`;
+            
+            // Send to parent window
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage(message, '*');
+                console.log('Message sent to parent:', message);
+            } else {
+                console.warn('No parent window detected - are you testing outside the widget?');
+            }
 
-        // Preselect language from query params if present
-        if (initialLang) {
-          const option = Array.from(select.options).find(
-            (o) => o.value === initialLang
-          );
-          if (option) {
-            select.value = initialLang;
-          }
+            // Optional: Store selection in localStorage for persistence
+            try {
+                localStorage.setItem('selectedLanguage', languageCode);
+                localStorage.setItem('selectedLanguageName', languageName);
+            } catch (e) {
+                console.log('localStorage not available');
+            }
         }
 
-        function setStatus(message, type) {
-          status.textContent = message || "";
-          status.classList.remove("error", "success", "show");
-          if (type) {
-            status.classList.add(type, "show");
-          }
-        }
+        // Optional: Auto-select if language is already stored
+        window.addEventListener('DOMContentLoaded', function() {
+            const storedLanguage = localStorage.getItem('selectedLanguage');
+            if (storedLanguage) {
+                console.log('Previously selected language found:', storedLanguage);
+                // Optionally auto-select or highlight the previous choice
+            }
 
-        // Auto-submit when language is selected
-        select.addEventListener("change", function () {
-          const value = this.value;
-          const label = this.options[this.selectedIndex] && this.options[this.selectedIndex].text;
-
-          if (!value) {
-            return;
-          }
-
-          // Send natural language message to Bland widget
-          const languageName = languageNames[value] || value;
-          const payload = `I want to continue in ${languageName}`;
-
-          try {
-            parent.window.postMessage(`widget-message:${payload}`, "*");
-            setStatus(`✓ Language set to ${label}`, "success");
-            select.disabled = true;
-          } catch (err) {
-            console.error(err);
-            setStatus("Unable to connect to chat widget.", "error");
-          }
+            // Check if we're in an iframe
+            if (window.parent === window) {
+                console.warn('⚠️ This component should be loaded in an iframe within the Bland widget');
+            } else {
+                console.log('✅ Component loaded in iframe correctly');
+            }
         });
-      })();
+
+        // Listen for messages from parent (optional - for two-way communication)
+        window.addEventListener('message', function(event) {
+            console.log('Received message from parent:', event.data);
+            // You can add custom handling here if needed
+        });
     </script>
-  </body>
+</body>
 </html>
