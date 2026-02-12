@@ -66,22 +66,6 @@
         color: #16a34a;
         border: 1px solid #bbf7d0;
       }
-
-      .debug {
-        margin-top: 12px;
-        font-size: 11px;
-        padding: 8px;
-        background: #f3f4f6;
-        border-radius: 4px;
-        font-family: monospace;
-        max-height: 200px;
-        overflow-y: auto;
-      }
-
-      .debug-line {
-        margin-bottom: 4px;
-        color: #374151;
-      }
     </style>
   </head>
   <body>
@@ -107,44 +91,44 @@
       </select>
 
       <div id="status" class="status"></div>
-      <div id="debug" class="debug"></div>
     </div>
 
     <script>
       (function () {
-        const select = document.getElementById("language");
-        const status = document.getElementById("status");
-        const debug = document.getElementById("debug");
-
-        // Debug logging function
-        function logDebug(message) {
-          console.log('[Language Selector]', message);
-          const line = document.createElement('div');
-          line.className = 'debug-line';
-          line.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
-          debug.appendChild(line);
-          debug.scrollTop = debug.scrollHeight;
-        }
-
-        // Check iframe context on load
-        window.addEventListener('DOMContentLoaded', function() {
-          logDebug('Component loaded');
-          logDebug(`In iframe: ${window.parent !== window}`);
-          logDebug(`Parent exists: ${!!window.parent}`);
-          logDebug(`Window location: ${window.location.href}`);
-          
-          if (window.parent === window) {
-            setStatus('⚠️ Testing mode - not in iframe', 'error');
-          }
-        });
-
-        // Check for query params
         const params = new URLSearchParams(window.location.search);
         const initialLang = params.get("language") || params.get("lang");
-        
+
+        const select = document.getElementById("language");
+        const status = document.getElementById("status");
+
+        // Language name mapping
+        const languageNames = {
+          'en': 'English',
+          'ja': 'Japanese',
+          'zh': 'Mandarin',
+          'es': 'Spanish',
+          'pt': 'Portuguese',
+          'it': 'Italian',
+          'ko': 'Korean',
+          'fr': 'French',
+          'el': 'Greek',
+          'de': 'German',
+          'fi': 'Finnish',
+          'nl': 'Dutch',
+          'ru': 'Russian',
+          'ro': 'Romanian',
+          'tr': 'Turkish',
+          'hi': 'Hindi'
+        };
+
+        // Preselect language from query params if present
         if (initialLang) {
-          logDebug(`Initial language from URL: ${initialLang}`);
-          select.value = initialLang;
+          const option = Array.from(select.options).find(
+            (o) => o.value === initialLang
+          );
+          if (option) {
+            select.value = initialLang;
+          }
         }
 
         function setStatus(message, type) {
@@ -153,66 +137,30 @@
           if (type) {
             status.classList.add(type, "show");
           }
-          logDebug(`Status: ${message}`);
         }
-
-        // Listen for messages from parent (for debugging)
-        window.addEventListener('message', function(event) {
-          logDebug(`Received message: ${JSON.stringify(event.data)}`);
-        });
 
         // Auto-submit when language is selected
         select.addEventListener("change", function () {
-          const languageCode = this.value;
-          const displayText = this.options[this.selectedIndex]?.text;
+          const value = this.value;
+          const label = this.options[this.selectedIndex] && this.options[this.selectedIndex].text;
 
-          if (!languageCode) {
-            logDebug('No language selected');
+          if (!value) {
             return;
           }
 
-          logDebug(`Language selected: ${languageCode} (${displayText})`);
+          // Send natural language message to Bland widget
+          const languageName = languageNames[value] || value;
+          const payload = `I want to continue in ${languageName}`;
 
           try {
-            // Try multiple postMessage approaches
-            const message = `widget-message:${languageCode}`;
-            
-            logDebug(`Attempting to send: "${message}"`);
-            
-            // Method 1: Direct parent postMessage
-            if (window.parent && window.parent !== window) {
-              window.parent.postMessage(message, "*");
-              logDebug('✓ Sent via window.parent.postMessage');
-            }
-            
-            // Method 2: Try parent.window (alternative syntax)
-            if (parent && parent.window) {
-              parent.window.postMessage(message, "*");
-              logDebug('✓ Sent via parent.window.postMessage');
-            }
-
-            // Method 3: Try window.top (in case of nested iframes)
-            if (window.top && window.top !== window) {
-              window.top.postMessage(message, "*");
-              logDebug('✓ Sent via window.top.postMessage');
-            }
-
-            setStatus(`✓ Language set to ${displayText}`, "success");
-            
-            // Disable select after sending
-            setTimeout(() => {
-              select.disabled = true;
-              logDebug('Dropdown disabled');
-            }, 500);
-
+            parent.window.postMessage(`widget-message:${payload}`, "*");
+            setStatus(`✓ Language set to ${label}`, "success");
+            select.disabled = true;
           } catch (err) {
-            logDebug(`❌ Error: ${err.message}`);
-            console.error('[Language Selector] Error:', err);
-            setStatus("Error sending message. Check console.", "error");
+            console.error(err);
+            setStatus("Unable to connect to chat widget.", "error");
           }
         });
-
-        logDebug('Event listeners attached');
       })();
     </script>
   </body>
