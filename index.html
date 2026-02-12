@@ -157,7 +157,6 @@
             setStatus(`✓ Language set to ${label}`, "success");
             select.disabled = true;
           } catch (err) {
-            console.error(err);
             setStatus("Unable to connect to chat widget.", "error");
           }
         });
