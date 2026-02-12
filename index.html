@@ -1,219 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Language Selector</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+// Language selector component with structured message format
 
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: transparent;
-        padding: 16px;
-      }
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español (Spanish)' },
+  { code: 'fr', name: 'Français (French)' },
+  { code: 'de', name: 'Deutsch (German)' },
+  { code: 'it', name: 'Italiano (Italian)' },
+  { code: 'pt', name: 'Português (Portuguese)' },
+  { code: 'zh', name: '中文 (Chinese)' },
+  { code: 'ja', name: '日本語 (Japanese)' },
+  { code: 'ko', name: '한국어 (Korean)' },
+  { code: 'ar', name: 'العربية (Arabic)' }
+];
 
-      .container {
-        max-width: 100%;
-      }
-
-      select {
-        width: 100%;
-        padding: 12px 16px;
-        border-radius: 8px;
-        border: 1px solid #d1d5db;
-        font-size: 15px;
-        color: #111827;
-        background: white;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      select:hover {
-        border-color: #9ca3af;
-      }
-
-      select:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      }
-
-      .status {
-        margin-top: 12px;
-        font-size: 13px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        display: none;
-      }
-
-      .status.show {
-        display: block;
-      }
-
-      .status.error {
-        background: #fef2f2;
-        color: #dc2626;
-        border: 1px solid #fecaca;
-      }
-
-      .status.success {
-        background: #f0fdf4;
-        color: #16a34a;
-        border: 1px solid #bbf7d0;
-      }
-
-      .debug {
-        margin-top: 12px;
-        font-size: 11px;
-        padding: 8px;
-        background: #f3f4f6;
-        border-radius: 4px;
-        font-family: monospace;
-        max-height: 200px;
-        overflow-y: auto;
-      }
-
-      .debug-line {
-        margin-bottom: 4px;
-        color: #374151;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <select id="language">
-        <option value="">Select a language…</option>
-        <option value="en">English</option>
-        <option value="ja">日本語 (Japanese)</option>
-        <option value="zh">中文 (Mandarin)</option>
-        <option value="es">Español (Spanish)</option>
-        <option value="pt">Português (Portuguese)</option>
-        <option value="it">Italiano (Italian)</option>
-        <option value="ko">한국어 (Korean)</option>
-        <option value="fr">Français (French)</option>
-        <option value="el">Ελληνικά (Greek)</option>
-        <option value="de">Deutsch (German)</option>
-        <option value="fi">Suomi (Finnish)</option>
-        <option value="nl">Nederlands (Dutch)</option>
-        <option value="ru">Русский (Russian)</option>
-        <option value="ro">Română (Romanian)</option>
-        <option value="tr">Türkçe (Turkish)</option>
-        <option value="hi">हिन्दी (Hindi)</option>
-      </select>
-
-      <div id="status" class="status"></div>
-      <div id="debug" class="debug"></div>
-    </div>
-
-    <script>
-      (function () {
-        const select = document.getElementById("language");
-        const status = document.getElementById("status");
-        const debug = document.getElementById("debug");
-
-        // Debug logging function
-        function logDebug(message) {
-          console.log('[Language Selector]', message);
-          const line = document.createElement('div');
-          line.className = 'debug-line';
-          line.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
-          debug.appendChild(line);
-          debug.scrollTop = debug.scrollHeight;
-        }
-
-        // Check iframe context on load
-        window.addEventListener('DOMContentLoaded', function() {
-          logDebug('Component loaded');
-          logDebug(`In iframe: ${window.parent !== window}`);
-          logDebug(`Parent exists: ${!!window.parent}`);
-          logDebug(`Window location: ${window.location.href}`);
-          
-          if (window.parent === window) {
-            setStatus('⚠️ Testing mode - not in iframe', 'error');
-          }
-        });
-
-        // Check for query params
-        const params = new URLSearchParams(window.location.search);
-        const initialLang = params.get("language") || params.get("lang");
-        
-        if (initialLang) {
-          logDebug(`Initial language from URL: ${initialLang}`);
-          select.value = initialLang;
-        }
-
-        function setStatus(message, type) {
-          status.textContent = message || "";
-          status.classList.remove("error", "success", "show");
-          if (type) {
-            status.classList.add(type, "show");
-          }
-          logDebug(`Status: ${message}`);
-        }
-
-        // Listen for messages from parent (for debugging)
-        window.addEventListener('message', function(event) {
-          logDebug(`Received message: ${JSON.stringify(event.data)}`);
-        });
-
-        // Auto-submit when language is selected
-        select.addEventListener("change", function () {
-          const languageCode = this.value;
-          const displayText = this.options[this.selectedIndex]?.text;
-
-          if (!languageCode) {
-            logDebug('No language selected');
-            return;
-          }
-
-          logDebug(`Language selected: ${languageCode} (${displayText})`);
-
-          try {
-            // Try multiple postMessage approaches
-            const message = `widget-message:${languageCode}`;
-            
-            logDebug(`Attempting to send: "${message}"`);
-            
-            // Method 1: Direct parent postMessage
-            if (window.parent && window.parent !== window) {
-              window.parent.postMessage(message, "*");
-              logDebug('✓ Sent via window.parent.postMessage');
-            }
-            
-            // Method 2: Try parent.window (alternative syntax)
-            if (parent && parent.window) {
-              parent.window.postMessage(message, "*");
-              logDebug('✓ Sent via parent.window.postMessage');
-            }
-
-            // Method 3: Try window.top (in case of nested iframes)
-            if (window.top && window.top !== window) {
-              window.top.postMessage(message, "*");
-              logDebug('✓ Sent via window.top.postMessage');
-            }
-
-            setStatus(`✓ Language set to ${displayText}`, "success");
-            
-            // Disable select after sending
-            setTimeout(() => {
-              select.disabled = true;
-              logDebug('Dropdown disabled');
-            }, 500);
-
-          } catch (err) {
-            logDebug(`❌ Error: ${err.message}`);
-            console.error('[Language Selector] Error:', err);
-            setStatus("Error sending message. Check console.", "error");
-          }
-        });
-
-        logDebug('Event listeners attached');
-      })();
-    </script>
-  </body>
-</html>
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Event listeners attached');
+  const select = document.getElementById('languageSelect');
+  const status = document.getElementById('status');
+  
+  console.log('Component loaded');
+  console.log('In iframe:', window !== window.parent);
+  console.log('Parent exists:', window.parent !== window);
+  console.log('Window location:', window.location.href);
+  
+  // Populate dropdown
+  languages.forEach(lang => {
+    const option = document.createElement('option');
+    option.value = lang.code;
+    option.textContent = lang.name;
+    select.appendChild(option);
+  });
+  
+  select.addEventListener('change', (e) => {
+    const languageCode = e.target.value;
+    const languageName = languages.find(l => l.code === languageCode)?.name || languageCode;
+    
+    console.log(`Language selected: ${languageCode} (${languageName})`);
+    
+    // Send structured message to pathway
+    const message = `widget-message:My language preference is ${languageCode}`;
+    console.log('Attempting to send:', JSON.stringify(message));
+    
+    try {
+      // Try all three methods
+      window.parent.postMessage(message, '*');
+      console.log('✓ Sent via window.parent.postMessage');
+      
+      parent.window.postMessage(message, '*');
+      console.log('✓ Sent via parent.window.postMessage');
+      
+      window.top.postMessage(message, '*');
+      console.log('✓ Sent via window.top.postMessage');
+      
+      // Update UI
+      status.textContent = `✓ Language set to ${languageName}`;
+      status.style.color = '#10b981';
+      select.disabled = true;
+      
+    } catch (error) {
+      console.error('Error sending message:', error);
+      status.textContent = '✗ Failed to send language selection';
+      status.style.color = '#ef4444';
+    }
+  });
+});
