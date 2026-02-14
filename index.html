@@ -66,19 +66,6 @@
         color: #16a34a;
         border: 1px solid #bbf7d0;
       }
-
-      .debug {
-        margin-top: 12px;
-        font-size: 11px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        background: #f3f4f6;
-        color: #374151;
-        border: 1px solid #d1d5db;
-        font-family: monospace;
-        white-space: pre-wrap;
-        word-break: break-all;
-      }
     </style>
   </head>
   <body>
@@ -104,7 +91,6 @@
       </select>
 
       <div id="status" class="status"></div>
-      <div id="debug" class="debug"></div>
     </div>
 
     <script>
@@ -114,32 +100,26 @@
 
         const select = document.getElementById("language");
         const status = document.getElementById("status");
-        const debug = document.getElementById("debug");
 
-        // Language name mapping
-        const languageNames = {
-          'en': 'English',
-          'ja': 'Japanese',
-          'zh': 'Mandarin',
-          'es': 'Spanish',
-          'pt': 'Portuguese',
-          'it': 'Italian',
-          'ko': 'Korean',
-          'fr': 'French',
-          'el': 'Greek',
-          'de': 'German',
-          'fi': 'Finnish',
-          'nl': 'Dutch',
-          'ru': 'Russian',
-          'ro': 'Romanian',
-          'tr': 'Turkish',
-          'hi': 'Hindi'
+        // Messages in each language: "I want to speak in [language]"
+        const languageMessages = {
+          'en': 'I want to speak in English',
+          'ja': '日本語で話したいです',
+          'zh': '我想用中文说话',
+          'es': 'Quiero hablar en español',
+          'pt': 'Quero falar em português',
+          'it': 'Voglio parlare in italiano',
+          'ko': '한국어로 말하고 싶습니다',
+          'fr': 'Je veux parler en français',
+          'el': 'Θέλω να μιλήσω στα ελληνικά',
+          'de': 'Ich möchte auf Deutsch sprechen',
+          'fi': 'Haluan puhua suomeksi',
+          'nl': 'Ik wil Nederlands spreken',
+          'ru': 'Я хочу говорить по-русски',
+          'ro': 'Vreau să vorbesc în română',
+          'tr': 'Türkçe konuşmak istiyorum',
+          'hi': 'मैं हिंदी में बात करना चाहता हूं'
         };
-
-        // Debug info
-        debug.textContent = `In iframe: ${window.self !== window.top}
-Parent exists: ${!!window.parent}
-Location: ${window.location.href}`;
 
         // Preselect language from query params if present
         if (initialLang) {
@@ -168,28 +148,18 @@ Location: ${window.location.href}`;
             return;
           }
 
-          // Send natural language message to Bland widget
-          const languageName = languageNames[value] || value;
-          const payload = `I want to continue in ${languageName}`;
+          // Send message in the selected language
+          const payload = languageMessages[value];
 
           try {
-            console.log('Sending postMessage:', payload);
             parent.window.postMessage(`widget-message:${payload}`, "*");
-            
-            debug.textContent += `\n\nMessage sent: ${payload}
-Target: parent.window
-Origin: *`;
-            
             setStatus(`✓ Language set to ${label}`, "success");
             select.disabled = true;
           } catch (err) {
-            console.error('postMessage error:', err);
-            debug.textContent += `\n\nERROR: ${err.message}`;
+            console.error(err);
             setStatus("Unable to connect to chat widget.", "error");
           }
         });
-
-        console.log('Language selector loaded');
       })();
     </script>
   </body>
